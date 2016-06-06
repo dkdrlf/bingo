@@ -15,7 +15,7 @@ public class BingoGameClient implements Runnable {
 	ObjectInputStream ois;
 	Socket socket;
 	String id;
-	
+	String commit;
 	
 	public BingoGameClient(ObjectOutputStream oos,ObjectInputStream ois) {
 		// TODO Auto-generated constructor stub
