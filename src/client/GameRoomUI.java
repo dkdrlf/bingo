@@ -10,14 +10,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import client.GameLobbyUI.TableModel;
+import data.User;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+
 
 public class GameRoomUI extends JFrame implements ActionListener {
 	JTextField a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26;
@@ -29,12 +31,13 @@ public class GameRoomUI extends JFrame implements ActionListener {
 	DefaultTableModel dt=new DefaultTableModel();
 	String column[]={"차례","ID","상태","빙고"};
 	private JTextField textField;
-	
+	String title;
+	String id;
 	JButton ready;
 	JButton exit;
 	CardLayout c;
 	JPanel panel;
-	public GameRoomUI() {
+	public GameRoomUI(String title,String id) {
 		setTitle("빙고게임 창");
 		// TODO Auto-generated constructor stub
 		this.setBounds(300, 300, 600, 500);
@@ -66,7 +69,7 @@ public class GameRoomUI extends JFrame implements ActionListener {
 			panel_2.add(btn_b[a]);
 		}
 		
-		JLabel lblNewLabel = new JLabel("빙고주제:");
+		JLabel lblNewLabel = new JLabel("빙고주제:"+title);
 		lblNewLabel.setBounds(0, 0, 204, 30);
 		getContentPane().add(lblNewLabel);
 		
@@ -108,16 +111,10 @@ public class GameRoomUI extends JFrame implements ActionListener {
 		
 		exit = new JButton("방나가기");
 		exit.setBounds(475, 349, 97, 23);
+		exit.addActionListener(this);
 		getContentPane().add(exit);
-		Object[] ob={1,2,3,4};
-		Object[] ob1={1,2,3,4};
-		Object[] ne={7,8,9,10};
+		Object[] ob={"X",id,"X","X"};
 		dt.addRow(ob);
-		dt.addRow(ob1);
-		dt.removeRow(0);
-		dt.insertRow(0,ne);
-		
-		
 		
 		this.setVisible(true);
 	}
@@ -127,22 +124,42 @@ public class GameRoomUI extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object ob=e.getSource();
+		Boolean b=true;
 		if(ob==ready)
 		{
+			out:
 			for(int a=0;a<25;a++)
 			{
+				if(jt_a[a].getText().equals(""))
+				{
+					JOptionPane.showConfirmDialog(this, "값을 다 입력하세요", "확인", JOptionPane.PLAIN_MESSAGE);
+					b=false;
+					break;
+				}
+				else
+				{
+					for(int c=0;c<25;c++)
+					{
+						if(jt_a[a].getText().equals(jt_a[c].getText()))
+						{
+							JOptionPane.showConfirmDialog(this, "중복된 값을 입력하지 마세요", "확인", JOptionPane.PLAIN_MESSAGE);
+							b=false;
+							break out;
+						}
+					}
+				}
 				btn_b[a].setText(jt_a[a].getText());
+			}
+			if(b==true)
+			{
+				c.previous(panel);
 			}
 			
 		}
-		c.previous(panel);
-		
+		else if(ob==exit)
+		{
+			this.setVisible(false);
+		}
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		new GameRoomUI();
-		
-
-	}
 }

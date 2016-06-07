@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 
 import data.Data;
+import data.User;
 
 public class BingoGameClient implements Runnable {
 	ObjectOutputStream oos;
@@ -16,25 +17,42 @@ public class BingoGameClient implements Runnable {
 	Socket socket;
 	String id;
 	String commit;
+	User user;
+	GameLobbyUI gl;
 	
-	public BingoGameClient(ObjectOutputStream oos,ObjectInputStream ois) {
-		// TODO Auto-generated constructor stub
-		this.oos=oos;
-		this.ois=ois;
-		this.id=id;
-		Data d=new Data(Data.SHOWALL);
-		Object obj[]={d};
+	public BingoGameClient(User user) {
+		this.user = user;
+		Socket socket;
 		try {
-			oos.writeObject(obj);
-		} catch (IOException e) {
+			socket = new Socket("localhost", 7777);
+			oos=new ObjectOutputStream(socket.getOutputStream());
+			ois=new ObjectInputStream(socket.getInputStream());
+			Data d=new Data(Data.LOGIN);
+			d.setUser(user);
+			
+			gl=GameLobbyUI.getGL();
+			gl.setBingGameClient(this);
+			
+			Thread t=new Thread(this);
+			t.start();
+			sendData(d);
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		GameLobbyUI gl=GameLobbyUI.getGL();
+
 		
 		
 	}
 	
+	public void sendData(Data data){
+		try {
+			oos.writeObject(data);
+			oos.reset();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public void run() {
@@ -42,19 +60,25 @@ public class BingoGameClient implements Runnable {
 		while(true)
 		{
 			try {
-				Object obj[]=(Object[])ois.readObject();
-				String command=(String)obj[0];
-				switch (command) {
-				case "showall":
-					ArrayList<String> list=new ArrayList<>();
-					list=(ArrayList<String>)obj[1];
-					GameLobbyUI.gl.list.setListData(list.toArray());
+				Data u=(Data)ois.readObject();
+				
+				switch (u.getCommand()) {
+				case Data.LOGIN:
+					gl.updateUserList(u.getUserList());
+					gl.updateTableList(u.getRoomList());
+					break;
 					
+				case Data.MAKE_ROOM:
+					gl.updateUserList(u.getUserList());
+					gl.updateTableList(u.getRoomList());
 					break;
 
 				default:
 					break;
 				}
+				
+				
+				
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -62,6 +86,8 @@ public class BingoGameClient implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+				
+
 		}
 		
 	}

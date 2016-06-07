@@ -82,8 +82,5 @@ public class Data implements Serializable {
 
 	public void setGameInfo(GameInfo gameInfo) {
 		this.gameInfo = gameInfo;
-	}
-	
-	
-	
+	}	
 }

@@ -65,29 +65,14 @@ public class LoginUI extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object obj=e.getSource();
+		
 		if(obj==btnNewButton)
 		{
-			Socket socket;
-			try {
-				socket = new Socket("localhost", 7777);
-				oos=new ObjectOutputStream(socket.getOutputStream());
-				ois=new ObjectInputStream(socket.getInputStream());
-				String id=textField.getText();
-				int privilege=1;
-				Data d=new Data(Data.LOGIN);
-				User u=new User(id, privilege);
-				Object obj2[]={d,u};
-				oos.writeObject(obj2);
-				BingoGameClient b=new BingoGameClient(oos,ois);
-				Thread t=new Thread(b);
-				t.start();
-				this.setVisible(false);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			String id = textField.getText();
+			User user = new User(id, User.NORMAL_PRIVILEGE);
+			this.setVisible(false);
+			BingoGameClient client = new BingoGameClient(user);
 		}
-		
 		
 	}
 

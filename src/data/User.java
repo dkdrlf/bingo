@@ -16,9 +16,21 @@ public class User implements Serializable {
 	public static final String READY = "준비중";
 	public static final String DONE = "준비완료";
 	
+	private String command;
+	
 	public User(String id, int privilege) {
 		this.id = id;
 		this.privilege = privilege;
+	}
+	
+	public void setCommand(String command)
+	{
+		this.command=command;
+	}
+	
+	public String getCommand()
+	{
+		return command;
 	}
 
 	public int getPrivilege() {

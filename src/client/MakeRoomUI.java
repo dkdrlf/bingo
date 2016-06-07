@@ -5,8 +5,13 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JTextField;
+
+import data.Data;
+import data.GameRoom;
+
 import javax.swing.JComboBox;
 import javax.swing.JButton;
 import java.awt.Color;
@@ -92,11 +97,19 @@ public class MakeRoomUI extends JFrame implements ActionListener {
 		{
 			String name=textField.getText();
 			String subject=textField_1.getText();
-			String num=(String) comboBox.getSelectedItem();
-			Object[][] tableData={{name,subject,num}};
-			GameLobbyUI.gl.tm.setDataVector(tableData, tableColumns);
-			
+			String num=(String) comboBox.getSelectedItem();	
 			this.setVisible(false);
+			GameRoom gr=new GameRoom(GameLobbyUI.gl.client.user.getId(), name, subject, Integer.parseInt(num));
+			BingoGameClient bc=GameLobbyUI.gl.client;
+			Data d=new Data(Data.MAKE_ROOM);
+			d.setGameRoom(gr);
+			try {
+				bc.oos.writeObject(d);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			new GameRoomUI(subject,GameLobbyUI.gl.client.user.getId());
 		}
 		
 		

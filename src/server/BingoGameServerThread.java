@@ -59,32 +59,29 @@ public class BingoGameServerThread implements Runnable {
 		while(!exit){
 			try {
 				//data = (Data)ois.readObject();
-				Object obj[]=(Object[])ois.readObject();
-				data=(Data)obj[0];
+				data = (Data)ois.readObject();
 				
 				switch(data.getCommand()){
 					case Data.LOGIN: {
-						User u=(User)obj[1];	
+						User u=data.getUser();	
 						u.setOos(oos);
 						connectedUserList.add(u);
 						printEventLog(u.getId()+"가접속했습니다");
 						this.updateConnectionList(connectedUserList);
+						data.setUserList(connectedUserList);
+						data.setRoomList(gameRoomList);
+						broadCasting();
 					}
-						break;
-					case Data.SHOWALL:
-						ArrayList<String> list=new ArrayList<>();
-						for(int a=0; a<connectedUserList.size();a++)
-						{
-							list.add(connectedUserList.get(a).getId());
-						}
-						Object obj1[]={"showall",list};
-						for(int a=0;a<connectedUserList.size();a++)
-						{
-							connectedUserList.get(a).getOos().writeObject(obj1);
-						}
 						break;
 						
 					case Data.MAKE_ROOM: {
+						GameRoom gr=data.getGameRoom();
+						gameRoomList.put(gr.getRoomID(), gr);
+						System.out.println(gr.getRoomID());
+						System.out.println(gameRoomList.size());
+						data.setUserList(connectedUserList);
+						data.setRoomList(gameRoomList);
+						broadCasting();
 					
 					}
 						break;
@@ -127,13 +124,20 @@ public class BingoGameServerThread implements Runnable {
 	 * ��� �������� Data��ü ����
 	 * */
 	public void broadCasting(){
-		
+		for(User user : connectedUserList){
+			try {
+				user.getOos().writeObject(data);
+				user.getOos().reset();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 
 	public static void main(String[] args) {
 		BingoGameServerThread b=new BingoGameServerThread();
-		b.printEventLog("dd");
+		//b.printEventLog("dd");
 	}
 	
 }

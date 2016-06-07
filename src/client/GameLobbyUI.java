@@ -1,39 +1,40 @@
 package client;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableModel;
-
-import tabletest.TableTest.TableEventHandler;
-
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JList;
-import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableModel;
+
+import data.GameRoom;
+import data.User;
 
 public class GameLobbyUI extends JFrame implements ActionListener {
 	
-	private JTable table;
 	private Object [][] tableData = new Object[0][0];
 	private String [] tableColumns = {"방제목", "빙고주제", "인원"};
 
 	JButton btn_create;
 	JButton btn_exit;
-	public TableModel tm;
+	
 	JLabel person_num;
 	public static GameLobbyUI gl=new GameLobbyUI();
 	JList list;
+	BingoGameClient client;
+	private JTable table_1;
+	DefaultTableModel tmodel;
+	
 	public static GameLobbyUI getGL()
 	{
 		return gl;
@@ -57,24 +58,12 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 		scrollPane.setBounds(10, 56, 327, 214);
 		getContentPane().add(scrollPane);
 		
-		table = new JTable();
-		tm = new TableModel(tableData, tableColumns);
-		table = new JTable(tm);
-		table.setFillsViewportHeight(true);
-		table.addMouseListener(new TableEventHandler());
 		
-		table.getColumnModel().getColumn(0).setPreferredWidth(60);
-		table.getColumnModel().getColumn(1).setPreferredWidth(60);
-		table.getColumnModel().getColumn(2).setPreferredWidth(10);
-		
-		table.getColumnModel().getColumn(0).setResizable(false);
-		table.getColumnModel().getColumn(1).setResizable(false);
-		table.getColumnModel().getColumn(2).setResizable(false);
-		
-		table.setColumnSelectionAllowed(true);
-		(table.getTableHeader()).setReorderingAllowed(false);
-		table.setCellSelectionEnabled(false);
-		scrollPane.setViewportView(table);
+		table_1 = new JTable();
+		scrollPane.setViewportView(table_1);
+		tmodel=new DefaultTableModel();
+		tmodel.setColumnIdentifiers(tableColumns);
+		table_1.setModel(tmodel);
 		
 		JLabel lblNewLabel_1 = new JLabel("접속자 목록");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -104,34 +93,35 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 		getContentPane().add(person_num);
 		this.setVisible(true);
 	}
+		
+	public void setBingGameClient(BingoGameClient client){
+		this.client = client;
+	}
+	
+	public void updateUserList(ArrayList<User> userList){
+		Object a_userList [] = userList.toArray();
+		list.setListData(a_userList);
+	}
+	public void updateTableList(HashMap<String, GameRoom> hmap)
+	{
+		tmodel=new DefaultTableModel();
+		tmodel.setColumnIdentifiers(tableColumns);
+		table_1.setModel(tmodel);
+		for(GameRoom g: hmap.values())
+		{
+			String title=g.getTitle();
+			String theme=g.getTheme();
+			int num=g.getMaxUserNum();
+			Object obj[]={title,theme,num};
+			tmodel.addRow(obj);
+		}
+	}
+		
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(source == btn_create) {
 			new MakeRoomUI();
-			
-		} else {
-			int index = table.getSelectedRow();
-			String value = (String)table.getValueAt(index, 0);
-			System.out.println(value);
 		}
 	}
-
-	class TableModel extends DefaultTableModel {
-		
-		public TableModel(Object [][] defaultRowData,Object [] defaultColumnNames){
-			super.setDataVector(defaultRowData,defaultColumnNames);			 
-    	}
-
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return false;
-		}		
-	}
-	
-	public class TableEventHandler extends MouseAdapter {
-		public void mouseClicked(MouseEvent me){
-			
-		}
-	}
-
 }
