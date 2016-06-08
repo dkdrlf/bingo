@@ -7,14 +7,19 @@ import javax.swing.JPanel;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.plaf.synth.SynthSplitPaneUI;
 import javax.swing.table.DefaultTableModel;
 
+import data.Data;
+import data.GameRoom;
 import data.User;
 
 import javax.swing.JTable;
@@ -27,23 +32,30 @@ public class GameRoomUI extends JFrame implements ActionListener {
 
 	JTextField[] jt_a={a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15,a16,a17,a18,a19,a20,a21,a22,a23,a24,a25,a26};
 	JButton[] btn_b={b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16,b17,b18,b19,b20,b21,b22,b23,b24,b25};
-	private JTable table;
+	public JTable table;
 	DefaultTableModel dt=new DefaultTableModel();
 	String column[]={"차례","ID","상태","빙고"};
-	private JTextField textField;
-	String title;
+	public JTextField textField;
 	String id;
 	JButton ready;
 	JButton exit;
 	CardLayout c;
 	JPanel panel;
-	public GameRoomUI(String title,String id) {
+	JLabel lb_title;
+	private static GameRoomUI grui=new GameRoomUI();
+	
+	public static GameRoomUI getGameRoomUI()
+	{
+		return grui;
+	}
+
+	private GameRoomUI() {
 		setTitle("빙고게임 창");
 		// TODO Auto-generated constructor stub
 		this.setBounds(300, 300, 600, 500);
 		this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
-		
+
 		panel = new JPanel();
 		panel.setBounds(0, 30, 351, 299);
 		getContentPane().add(panel);
@@ -69,9 +81,9 @@ public class GameRoomUI extends JFrame implements ActionListener {
 			panel_2.add(btn_b[a]);
 		}
 		
-		JLabel lblNewLabel = new JLabel("빙고주제:"+title);
-		lblNewLabel.setBounds(0, 0, 204, 30);
-		getContentPane().add(lblNewLabel);
+		lb_title = new JLabel();
+		lb_title.setBounds(0, 0, 204, 30);
+		getContentPane().add(lb_title);
 		
 		JLabel lblNewLabel_1 = new JLabel("참가자");
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
@@ -84,7 +96,6 @@ public class GameRoomUI extends JFrame implements ActionListener {
 		
 		table = new JTable();
 		table.setModel(dt);
-		dt.setColumnIdentifiers(column);
 		scrollPane.setViewportView(table);
 		
 		JLabel lblNewLabel_2 = new JLabel("제한시간 :00초");
@@ -113,12 +124,25 @@ public class GameRoomUI extends JFrame implements ActionListener {
 		exit.setBounds(475, 349, 97, 23);
 		exit.addActionListener(this);
 		getContentPane().add(exit);
-		Object[] ob={"X",id,"X","X"};
-		dt.addRow(ob);
-		
+		//dt.setColumnIdentifiers(column);
+		//Object[] o={1,2,3,4};
+		//dt.addRow(o);
 		this.setVisible(true);
 	}
 	
+	public void setTable(HashMap<String, User> u)
+	{
+		System.out.println(u);
+		dt=new DefaultTableModel();
+		dt.setColumnIdentifiers(column);
+		for(User user :u.values())
+		{
+			Object[] obj={"X",user.getId(),user.getState(),"X"};
+			dt.addRow(obj);
+			System.out.println(user.getId());
+		}
+		table.setModel(dt);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

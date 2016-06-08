@@ -11,6 +11,7 @@ import javax.swing.JTextField;
 
 import data.Data;
 import data.GameRoom;
+import data.User;
 
 import javax.swing.JComboBox;
 import javax.swing.JButton;
@@ -24,7 +25,7 @@ public class MakeRoomUI extends JFrame implements ActionListener {
 	JComboBox comboBox;
 	private Object [][] tableData = new Object[0][0];
 	private String [] tableColumns = {"방제목", "빙고주제", "인원"};
-	
+	GameRoomUI g;
 	
 	public MakeRoomUI() {
 		getContentPane().setBackground(new Color(100, 149, 237));
@@ -99,21 +100,19 @@ public class MakeRoomUI extends JFrame implements ActionListener {
 			String subject=textField_1.getText();
 			String num=(String) comboBox.getSelectedItem();	
 			this.setVisible(false);
-			GameRoom gr=new GameRoom(GameLobbyUI.gl.client.user.getId(), name, subject, Integer.parseInt(num));
-			BingoGameClient bc=GameLobbyUI.gl.client;
+			GameLobbyUI g=GameLobbyUI.getGL();
+			GameRoom gr=new GameRoom(g.client.user.getId(), name, subject, Integer.parseInt(num));
+			User u=new User(g.client.user.getId(),User.HOST_PRIVILEGE);
+			BingoGameClient bc=g.client;
 			Data d=new Data(Data.MAKE_ROOM);
 			d.setGameRoom(gr);
+			d.setUser(u);
 			try {
 				bc.oos.writeObject(d);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			new GameRoomUI(subject,GameLobbyUI.gl.client.user.getId());
 		}
-		
-		
-		
-	}
-	
+	}	
 }

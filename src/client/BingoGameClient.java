@@ -19,6 +19,7 @@ public class BingoGameClient implements Runnable {
 	String commit;
 	User user;
 	GameLobbyUI gl;
+	GameRoomUI g;
 	
 	public BingoGameClient(User user) {
 		this.user = user;
@@ -40,9 +41,6 @@ public class BingoGameClient implements Runnable {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		
-		
 	}
 	
 	public void sendData(Data data){
@@ -71,13 +69,20 @@ public class BingoGameClient implements Runnable {
 				case Data.MAKE_ROOM:
 					gl.updateUserList(u.getUserList());
 					gl.updateTableList(u.getRoomList());
+					g=GameRoomUI.getGameRoomUI();
+					gamePersons(g,u);
 					break;
 
 				default:
-					break;
+				case Data.JOIN:
+					gl.updateUserList(u.getUserList());
+					gl.updateTableList(u.getRoomList());
+					g=GameRoomUI.getGameRoomUI();
+					gamePersons(g,u);
+					
+					//GameRoomUI g=new GameRoomUI(title, id)
+					//break;
 				}
-				
-				
 				
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -86,10 +91,12 @@ public class BingoGameClient implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-				
-
 		}
-		
+	}
+	public void gamePersons(GameRoomUI game,Data d)
+	{
+		game.lb_title.setText(d.getGameRoom().getTitle());
+		game.setTable(d.getGameRoom().getUserList());
 	}
 
 	

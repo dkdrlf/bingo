@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,6 +18,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
+import data.Data;
 import data.GameRoom;
 import data.User;
 
@@ -27,13 +29,15 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 
 	JButton btn_create;
 	JButton btn_exit;
+	JButton join;
 	
 	JLabel person_num;
-	public static GameLobbyUI gl=new GameLobbyUI();
+	private static GameLobbyUI gl=new GameLobbyUI();
 	JList list;
 	BingoGameClient client;
 	private JTable table_1;
 	DefaultTableModel tmodel;
+	MakeRoomUI m;
 	
 	public static GameLobbyUI getGL()
 	{
@@ -83,7 +87,7 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 		getContentPane().add(btn_create);
 		
 		btn_exit = new JButton("종료하기");
-		btn_exit.setBounds(256, 278, 97, 23);
+		btn_exit.setBounds(355, 278, 97, 23);
 		getContentPane().add(btn_exit);
 		
 		JLabel person_num = new JLabel("접속인원:00명");
@@ -91,6 +95,11 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 		person_num.setHorizontalAlignment(SwingConstants.CENTER);
 		person_num.setBounds(376, 255, 141, 15);
 		getContentPane().add(person_num);
+		
+		join = new JButton("입장");
+		join.setBounds(250, 278, 97, 23);
+		join.addActionListener(this);
+		getContentPane().add(join);
 		this.setVisible(true);
 	}
 		
@@ -111,7 +120,7 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 		{
 			String title=g.getTitle();
 			String theme=g.getTheme();
-			int num=g.getMaxUserNum();
+			int num=g.getNowUserNum();
 			Object obj[]={title,theme,num};
 			tmodel.addRow(obj);
 		}
@@ -121,7 +130,26 @@ public class GameLobbyUI extends JFrame implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(source == btn_create) {
-			new MakeRoomUI();
+			m=new MakeRoomUI();
+		}
+		if(source ==join)
+		{
+			String title=(String)tmodel.getValueAt(table_1.getSelectedRow(),0);
+			String theme=(String)tmodel.getValueAt(table_1.getSelectedRow(),1);
+			int maxUserNum=(int)tmodel.getValueAt(table_1.getSelectedRow(),2);
+			Data d=new Data(Data.JOIN);
+			User u=new User(client.user.getId(), client.user.getPrivilege());
+			
+			GameRoom g=new GameRoom(client.user.getId(), title, theme, maxUserNum);
+			d.setUser(u);
+			d.setGameRoom(g);
+			
+			try {
+				client.oos.writeObject(d);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 }

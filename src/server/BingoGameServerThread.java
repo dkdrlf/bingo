@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import javax.print.event.PrintEvent;
+import com.sun.javafx.geom.transform.GeneralTransform3D;
 
 import data.Data;
 import data.GameRoom;
@@ -76,9 +77,14 @@ public class BingoGameServerThread implements Runnable {
 						
 					case Data.MAKE_ROOM: {
 						GameRoom gr=data.getGameRoom();
-						gameRoomList.put(gr.getRoomID(), gr);
-						System.out.println(gr.getRoomID());
-						System.out.println(gameRoomList.size());
+						User u=data.getUser();
+						u.setState(User.READY);
+						HashMap<String, User> h=new HashMap<>();
+						h.put(u.getId(), u);
+						gr.setUserList(h);
+						gr.setNowUserNum(1);
+						gameRoomList.put(gr.getTitle(), gr);
+						this.find(gr.getRoomID(),gr);
 						data.setUserList(connectedUserList);
 						data.setRoomList(gameRoomList);
 						broadCasting();
@@ -87,7 +93,13 @@ public class BingoGameServerThread implements Runnable {
 						break;
 						
 					case Data.JOIN: {
-						
+						User u=(User)data.getUser();
+						GameRoom g=(GameRoom)data.getGameRoom();
+						u.setState(User.READY);
+						findGame(g,u);
+						data.setUserList(connectedUserList);
+						data.setRoomList(gameRoomList);
+						broadCasting();	
 					}
 						break;
 						
@@ -118,6 +130,52 @@ public class BingoGameServerThread implements Runnable {
 	 * */
 	public void sendDataRoommate(String roomID){
 		
+	}
+	public void findGame(GameRoom room,User user)
+	{
+		
+		
+		gameRoomList.get(room.getTitle()).setNowUserNum(gameRoomList.get(room.getTitle()).getNowUserNum()+1);
+		gameRoomList.get(room.getTitle()).getUserList().put(user.getId(), user);
+		room.setMaxUserNum(gameRoomList.get(room.getTitle()).getMaxUserNum());
+		room.setNowUserNum(gameRoomList.get(room.getTitle()).getNowUserNum());
+		room.setRoomID(gameRoomList.get(room.getTitle()).getRoomID());
+		room.setUserList(gameRoomList.get(room.getTitle()).getUserList());
+		for(int a=0;a<connectedUserList.size();a++)
+		{
+			if(connectedUserList.get(a).getId().equals(user.getId()))
+			{
+				String i_d=connectedUserList.get(a).getId();
+				int privilege=User.NORMAL_PRIVILEGE;
+				oos=connectedUserList.get(a).getOos();
+				User u=new User(i_d, privilege);
+				u.setOos(oos);
+				u.setRoom(room);
+				
+				connectedUserList.remove(a);
+				connectedUserList.add(u);
+			}
+		}
+		
+	}
+
+	
+	public void find(String id,GameRoom room)
+	{
+		for(int a=0;a<connectedUserList.size();a++)
+		{
+			if(connectedUserList.get(a).getId().equals(id))
+			{
+				String i_d=connectedUserList.get(a).getId();
+				int privilege=User.HOST_PRIVILEGE;
+				oos=connectedUserList.get(a).getOos();
+				User u=new User(i_d, privilege);
+				u.setOos(oos);
+				u.setRoom(room);
+				connectedUserList.remove(a);
+				connectedUserList.add(u);
+			}
+		}
 	}
 	
 	/**
